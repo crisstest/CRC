@@ -1,0 +1,155 @@
+void setpath()
+{
+*************************************
+*** Set Path setpath.prg
+*************************************
+PUBLIC mainPath,frmPath,icoPath,imgPath,mnuPath,prgPath,dataPath,rptPath,publicPrgPath,pulicFrmPath
+mainPath = SYS(5)+CURDIR()
+
+IF RIGHT(ALLTRIM(SYS(16)),3)=='FXP'
+	lcFxpPath=LEFT(SUBSTR(SYS(16),AT(":",SYS(16))-1),RAT("\",SUBSTR(SYS(16),AT(":",SYS(16))-1),2))
+	IF LEN(ALLTRIM(lcFxpPath))>0
+		mainPath = lcFxpPath
+	ENDIF 
+ENDIF
+SET DEFAULT TO &mainPath
+frmPath  = mainPath+"form\"
+icoPath  = mainPath+"ico\"
+imgPath  = mainPath+"img\"
+mnuPath  = mainPath+"menu\"
+prgPath  = mainPath+"prg\"
+rptPath  = mainPath+"report\"
+dataPath = SYS(5)+"\WINAPP\PUBLIC\DATA\"
+publicPrgPath=SYS(5)+"\WINAPP\PUBLIC\PROGS\"
+publicFrmPath=SYS(5)+"\WINAPP\PUBLIC\FORMS\"
+SET PATH TO &mainPath;&frmPath;&icoPath;&imgPath;&mnuPath;&prgPath;&dataPath;&rptPath;&publicPrgPath;&publicFrmPath
+
+PUBLIC publicPoSourcePath,publicPoSourceBackupPath,publicPoSignPath,publicDonotDisplayAgainUnImportPO,publicPoOtherPath
+publicPoSourcePath=SYS(5)+'\SALES\PO\LOG\'
+publicPoSourceBackupPath=SYS(5)+'\SALES\PO\'
+publicPoSignPath=SYS(5)+'\SALES\PO\CONFIRM\'
+publicDonotDisplayAgainUnImportPO=.F.
+publicPoOtherPath=SYS(5)+'\SALES\PO\OtherPOFiles\'
+**END*******************************************
+}
+
+void SetPrg()
+{	
+
+CLOSE DATABASES ALL
+SET STATUS BAR OFF
+SET CENTURY ON
+SET DATE TO MDY
+SET SAFETY OFF
+SET DELETED ON
+SET HOURS TO 24
+SET CLOCK STATUS
+SET ESCAPE ON
+SET TALK OFF
+SET EXCLUSIVE OFF
+SET EXACT OFF
+SET HELP OFF
+SET MEMOWIDTH TO 80
+SET REPROCESS TO 5 SECONDS
+
+
+PUBLIC ifRunForm,ThisPrgID,ifRun_NewCRC,gcThisPrgID
+ifRunForm=.F.
+ThisPrgID='CRC'
+gcThisPrgID=ThisPrgID
+ifRun_NewCRC=.F.
+
+PUBLIC tmpStru,tmpChkFld
+tmpStru='\temparea\'+RIGHT(SYS(2015),8)
+tmpChkFld='\temparea\'+RIGHT(SYS(2015),8)
+
+PUBLIC gError_Num		&&出錯時已重試次數
+gError_num=0
+
+*************************************
+*** Set Path
+*************************************
+LOCAL lcSYS16,lcPROGRAM,lcSETPATH
+lcSYS16=SYS(16)
+lcPROGRAM=SUBSTR(lcSYS16,AT(":",lcSYS16)-1)
+lcSETPATH=LEFT(lcPROGRAM,RAT("\",lcPROGRAM))+'SETPATH.PRG'
+DO &lcSETPATH
+*************************************
+SET PROCEDURE TO prg\zlib.prg
+SET PROCEDURE TO prg\crclib.prg ADDITIVE 
+
+SET PROCEDURE TO \WINAPP\PUBLIC\PROGS\Common.prg addi
+SET PROCEDURE TO \WINAPP\PUBLIC\PROGS\database_sql.prg addi
+SET PROCEDURE TO \WINAPP\PUBLIC\PROGS\user.prg addi
+
+SET PROCEDURE TO \WINAPP\PUBLIC\PROGS\show_cad.prg ADDITIVE
+SET CLASSLIB TO \WINAPP\PUBLIC\classes\view_cad.vcx ADDITIVE
+
+PUBLIC masterPath,fabricPath,salesPath,ppcPath,livePath,tmpPath,conn1,gcConn
+masterPath = "\master\"
+fabricPath = "\fabric\"
+salesPath  = "\nft\sales\"
+ppcPath    = "\nft\ppc\"
+livePath   = "\nft\live\"
+tmpPath    = "\temparea\"
+conn1      = -1
+gcConn	   = -1
+
+DO sql_set.prg WITH ThisPrgID	&&Return pcSQL_STR,plSAVE_DBF
+*DO ConnectSql IN crclib.prg
+
+_SCREEN.CAPTION='CRC Maintenance ( CRC ) --- Sql Server ( '+SYS(5)+' )'
+_SCREEN.ALWAYSONTOP=.F.
+_SCREEN.ICON="ico\crc.ico"
+_SCREEN.WINDOWSTATE=2
+_SCREEN.CLOSABLE=.F.
+_SCREEN.MAXBUTTON=.T.
+_SCREEN.BackColor= RGB(128,128,128)
+*!*	IF UPPER(ALLTRIM(lTest_Mode)) = 'TEST'
+*!*		_SCREEN.PICTURE="img\bg.jpg"
+*!*	ELSE
+*!*		_SCREEN.PICTURE="img\back1.bmp"
+*!*	ENDIF 
+*!*	_SCREEN.MOUSEPOINTER=99
+*!*	_SCREEN.MOUSEICON="ico\pff01.ani"
+_SCREEN.MOUSEPOINTER=0
+_SCREEN.MOUSEICON=""
+
+PUBLIC gUser_Name		&&用戶名稱
+PUBLIC gUser_Dept		&&用戶部門
+PUBLIC gUser_Add		&&用戶新增權限
+PUBLIC gUser_Edit		&&用戶修改權限
+PUBLIC gUser_Find		&&用戶查詢權限
+PUBLIC gUser_Del		&&用戶刪除權限
+PUBLIC gUser_Post		&&用戶批核權限
+PUBLIC gUser_Print		&&用戶列印權限
+
+gUser_Name=""
+gUser_Dept=""
+gUser_Add=0
+gUser_Edit=0
+gUser_Find=0
+gUser_Del=0
+gUser_Post=0
+gUser_Print=0
+
+
+PUBLIC gBomPriceQuotRight_Find 	&& 報價單查詢權限
+gBomPriceQuotRight_Find=.F.
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
